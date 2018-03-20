@@ -45,19 +45,62 @@ public:
 
 	void insert(T& key) { insert(new Node(key)); }
 
+	void insertRecursive(Node *node, const T& key)
+	{
+		if (key > node->key_)
+		{
+			if (node->right_ == NULL)
+			{
+				Node *temp = new Node;
+				temp->key_ = key;
+				
+				node->right_ = temp;
+				temp->p_ = node;
+			}
+			else
+				insertRecursive(node->right_, key);
+		}
+		else
+		{
+			if (node->left_ == NULL)
+			{
+				Node *temp = new Node;
+				temp->key_ = key;
+
+				node->left_ = temp;
+				temp->p_ = node;
+			}
+			else
+				insertRecursive(node->left_, key);
+		}
+
+		return;
+	}
+
 	// Удаление элемента из дерева, не нарушающее порядка элементов
 	void deleteKey(const T & key)
 	{
+		if (isEmpty()) {
+			cout << "You can't delete item, tree is empty";
+			return;
+		}
+
 		Node * temp = iterativeSearchNode(key);
 
-		if (temp == root_) {
+		if (temp == root_ && root_->left_ != NULL && root_->right_ != NULL) {
 			cout << "Error, you can't delete root\n";
+			return;
+		}
+		else {
+			delete root_;
+			delete temp;
+
 			return;
 		}
 
 		if (temp == NULL)
 		{
-			cout << "We don't have this key " << key << " in tree" << '\n';
+			cout << "Tree doesn't have this key " << key << " in the tree" << '\n';
 			return;
 		}
 
@@ -120,11 +163,16 @@ public:
 
 
 private:
+	bool isEmpty()
+	{
+		return (root_ == NULL);
+	}
+
 	// Вставка нового элемента в дерево, не нарушающая порядка
 	// элементов. Вставка производится в лист дерева
 	void insert(Node* key) {
 
-		if (root_ == nullptr) {
+		if (isEmpty()) {
 			root_ = key;
 			return;
 		}
@@ -157,6 +205,9 @@ private:
 
 	// Функция поиска адреса узла по ключу в бинарном дереве поиска
 	Node * iterativeSearchNode(const T & key) const {
+		if (isEmpty())
+			return NULL;
+
 		Node* temp = root_;
 
 		while (temp != NULL && temp->key_ != key)
@@ -195,6 +246,9 @@ private:
 
 	// Рекурсивная функция определения высоты дерева
 	int heightSubTree(Node *node) const {
+		if (isEmpty())
+			return 0;
+
 		int leftHeight, rightHeight;
 		int sumHeight = 0;
 
